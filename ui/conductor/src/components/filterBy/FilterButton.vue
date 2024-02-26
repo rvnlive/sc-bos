@@ -8,6 +8,7 @@
             color="primary"
             elevation="0"
             fab
+            height="36"
             tile
             small
             @click="showHideFilterList = !showHideFilterList">
