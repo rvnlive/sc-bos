@@ -24,36 +24,51 @@
         <template #top>
           <v-row
               :class="[
-                'd-flex flex-row align-center mb-2 mt-3 ml-0 pl-0 mr-1',
-                {'mt-n4 mb-2 mr-2': props.overviewPage}
+                'd-flex flex-row align-center mb-2 mt-1 ml-0 pl-0 mr-1',
+                {'mt-n5 mb-2 mr-n2': props.overviewPage}
               ]">
             <h3 v-if="props.overviewPage" :class="['text-h3 pt-2 pb-6', {'text-h4': props.overviewPage}]">
               Notifications
             </h3>
             <v-spacer/>
-            <FilterBy :class="['mt-n2', {'mb-4 mt-2 mr-2': !props.overviewPage}]" notification/>
-            <v-btn
-                v-if="props.overviewPage"
-                class="mt-n2"
-                color="primary"
-                @click="alerts.exportData('Notifications')">
+            <FilterBy :class="['mt-n2', {'mb-4 mt-2 mr-n2': !props.overviewPage}]" notification/>
+            <v-tooltip top>
+              <template #activator="{ on }">
+                <v-btn
+                    v-if="props.overviewPage"
+                    class="mt-n2 rounded"
+                    color="neutral"
+                    elevation="0"
+                    fab
+                    height="36"
+                    small
+                    tile
+                    v-on="on"
+                    width="34"
+                    @click="alerts.exportData('Notifications')">
+                  <v-icon>mdi-file-download</v-icon>
+                </v-btn>
+              </template>
               Export CSV...
-            </v-btn>
-            <v-tooltip bottom>
+            </v-tooltip>
+            <v-tooltip top>
               <template #activator="{ on }">
                 <v-btn
                     v-if="!props.overviewPage"
-                    @click="toggleManualEntry"
-                    color="primary"
-                    width="30"
-                    x-small
+                    class="mt-n2 ml-2 mb-4 rounded"
+                    color="neutral"
+                    elevation="0"
+                    fab
                     height="36"
-                    :class="[{'mt-2 mr-5': !props.overviewPage, 'mt-0 ml-2 mr-0': props.overviewPage}]"
-                    v-on="on">
-                  <v-icon size="28">mdi-plus</v-icon>
+                    width="34"
+                    small
+                    tile
+                    v-on="on"
+                    @click="toggleManualEntry">
+                  <v-icon size="30">mdi-plus</v-icon>
                 </v-btn>
               </template>
-              <span>Add new entry</span>
+              <span>Add New Entry</span>
             </v-tooltip>
 
             <v-expansion-panels v-if="!props.overviewPage" class="mt-n3 mb-3" flat v-model="manualEntryPanel">
@@ -191,13 +206,16 @@ const alertMetadata = useAlertMetadata();
 const hubStore = useHubStore();
 const pageStore = usePageStore();
 const notificationFilterStore = useNotificationFilterStore();
-const {availableSources, query} = storeToRefs(notificationFilterStore);
+const {isLoading, availableSources, query} = storeToRefs(notificationFilterStore);
 
 // Set the active query to the default query values when the component is created
 watch(
     () => props,
     (defaultQuery) => {
-      notificationFilterStore.resetActiveQuery(); // Reset the active query to remove any previous filters
+      // Store the initial query values for reset purposes
+      Object.entries(defaultQuery).forEach(([key, value]) => {
+        notificationFilterStore.storeInitialQuery(key, value);
+      });
 
       // Set the active query to the default query values
       Object.entries(defaultQuery).forEach(([key, value]) => {
@@ -213,6 +231,7 @@ const manualEntryForm = ref({
   source: 'manual',
   description: undefined,
   severity: undefined,
+  subsystem: undefined,
   floor: undefined,
   zone: undefined
 });
@@ -226,6 +245,7 @@ const addManualEntry = async () => {
     source: 'manual',
     description: undefined,
     severity: undefined,
+    subsystem: undefined,
     floor: undefined,
     zone: undefined
   };
@@ -248,6 +268,13 @@ watch(
     },
     {deep: true, immediate: true}
 );
+watch(
+    () => alerts.loading,
+    (state) => {
+      isLoading.value = state;
+    },
+    {immediate: true}
+);
 
 const floors = computed(() => Object.keys(alertMetadata.floorCountsMap).sort());
 const zones = computed(() => Object.keys(alertMetadata.zoneCountsMap).sort());
@@ -256,22 +283,15 @@ const subsystems = computed(() => Object.keys(alertMetadata.subsystemCountsMap).
 // Pre-defining the common default sources
 // These are available for both overviewPage and notificationsPage
 const defaultSources = [
-  {icon: 'mdi-checkbox-marked-circle-outline', title: 'Acknowledged', value: ['Yes', 'No']},
-  {icon: 'mdi-layers-triple-outline', title: 'Floor', value: floors},
-  {
-    icon: 'mdi-alert-box-outline', title: 'Severity', value: [
-      {label: notifications.severityData(9).text, value: 9},
-      {label: notifications.severityData(13).text, value: 13},
-      {label: notifications.severityData(17).text, value: 17},
-      {label: notifications.severityData(21).text, value: 21}
-    ], type: 'range'
-  },
-  {icon: 'mdi-file-tree', title: 'Subsystem', value: subsystems}
+  {icon: 'mdi-checkbox-marked-circle-outline', title: 'Acknowledged', value: ['Yes', 'No'], type: 'radio'},
+  {icon: 'mdi-layers-triple-outline', title: 'Floor', value: floors, type: 'list'},
+  {icon: 'mdi-alert-box-outline', title: 'Severity', type: 'range'},
+  {icon: 'mdi-file-tree', title: 'Subsystem', value: subsystems, type: 'list'}
 ];
 
 // Pre-defining the zone source
 // This is available only for notificationsPage - so we won't let the user filter by zone on the overviewPage
-const zoneSource = {icon: 'mdi-select-all', title: 'Zone', value: zones};
+const zoneSource = {icon: 'mdi-select-all', title: 'Zone', value: zones, type: 'list'};
 
 // Setting availableSources based on whether overviewPage is active
 watch(() => props.overviewPage, (active) => {

@@ -1,46 +1,32 @@
 <template>
-  <StatusAlert v-if="props.streamError" icon="mdi-cancel" :resource="props.streamError"/>
+  <StatusAlert v-if="error" icon="mdi-cancel" :resource="error"/>
 
   <v-tooltip v-else left>
     <template #activator="{ on }">
-      <v-icon :class="doorState.class" right size="20" v-on="on">{{ doorState.icon }}</v-icon>
+      <v-icon :class="openClosedDoorState.class" right size="20" v-on="on">
+        {{ openClosedDoorState.icon }}
+      </v-icon>
     </template>
-    <span class="text-capitalize">{{ doorState?.text }}</span>
+    <span class="text-capitalize">{{ openClosedDoorState?.text }}</span>
   </v-tooltip>
 </template>
 
 <script setup>
 import StatusAlert from '@/components/StatusAlert.vue';
-import {computed} from 'vue';
+import useOpenClosedTrait from '@/traits/openClosed/useOpenClosedTrait.js';
 
 const props = defineProps({
-  value: {
-    type: Object,
-    default: () => {}
+  name: {
+    type: String,
+    default: ''
   },
-  loading: {
+  paused: {
     type: Boolean,
     default: false
-  },
-  streamError: {
-    type: Object,
-    default: null
   }
 });
 
-const doorState = computed(() => {
-  if (!props.value) return {icon: 'mdi-door', class: 'unknown', text: ''};
-
-  return props.value?.statesList[0].openPercent === 0 ?
-      {icon: 'mdi-door-closed', class: 'closed', text: 'Closed'} :
-      props.value?.statesList[0].openPercent === 100 ?
-          {icon: 'mdi-door-open', class: 'open', text: 'Open'} :
-          {
-            icon: 'mdi-door',
-            class: 'moving',
-            text: '' + props.openClosePercentage?.value.statesList[0].openPercent + '%'
-          };
-});
+const {openClosedDoorState, error} = useOpenClosedTrait(() => props.name, () => props.paused);
 </script>
 
 <style scoped>

@@ -35,38 +35,23 @@
       <OccupancyCell v-bind="resource"/>
     </WithOccupancy>
 
-    <!-- If door has no access data reading and has OpenClose reading -->
-    <WithOpenClosed
-        v-if="hasCell('OpenClose') && !hasCell('AccessAttempt')"
-        v-slot="{ resource }"
-        :name="props.item.name"
-        :paused="props.paused">
-      <OpenClosedCell v-bind="resource"/>
-    </WithOpenClosed>
-
     <!-- If door has access data reading and has no OpenClose reading -->
-    <WithAccess
+    <AccessAttemptCell
         v-if="hasCell('AccessAttempt') && !hasCell('OpenClose')"
-        v-slot="{ resource }"
         :name="props.item.name"
-        :paused="props.paused">
-      <AccessAttemptCell v-bind="resource"/>
-    </WithAccess>
+        :paused="props.paused"/>
+
+    <!-- If door has no access data reading and has OpenClose reading -->
+    <OpenClosedCell
+        v-if="!hasCell('AccessAttempt') && hasCell('OpenClose')"
+        :name="props.item.name"
+        :paused="props.paused"/>
 
     <!-- If door has access data reading and has OpenClose reading -->
-    <WithAccess
+    <AccessOpenClosedCell
         v-if="hasCell('AccessAttempt') && hasCell('OpenClose')"
-        v-slot="{ resource: accessResource }"
         :name="props.item.name"
-        :paused="props.paused">
-      <WithOpenClosed v-slot="{ resource: openClosedResource }" :name="props.item.name" :paused="props.paused">
-        <AccessAttemptCell
-            v-bind="accessResource"
-            :open-close-percentage="openClosedResource"
-            :stream-error="accessResource.streamError || openClosedResource.streamError"/>
-      </WithOpenClosed>
-    </WithAccess>
-    <!-- End -->
+        :paused="props.paused"/>
 
     <WithEmergency v-if="hasCell('Emergency')" v-slot="{ resource }" :name="props.item.name" :paused="props.paused">
       <EmergencyCell v-bind="resource"/>
@@ -79,16 +64,15 @@
 </template>
 
 <script setup>
-import WithAccess from '@/routes/devices/components/renderless/WithAccess.vue';
 import WithAirTemperature from '@/routes/devices/components/renderless/WithAirTemperature.vue';
 import WithElectricDemand from '@/routes/devices/components/renderless/WithElectricDemand.vue';
 import WithEmergency from '@/routes/devices/components/renderless/WithEmergency.vue';
 import WithEnterLeave from '@/routes/devices/components/renderless/WithEnterLeave.vue';
 import WithMeter from '@/routes/devices/components/renderless/WithMeter.vue';
 import WithOccupancy from '@/routes/devices/components/renderless/WithOccupancy.vue';
-import WithOpenClosed from '@/routes/devices/components/renderless/WithOpenClosed.vue';
 import WithStatus from '@/routes/devices/components/renderless/WithStatus.vue';
 import AccessAttemptCell from '@/traits/access/AccessAttemptCell.vue';
+import AccessOpenClosedCell from '@/traits/accessOpenClosed/AccessOpenClosedCell.vue';
 import AirTemperatureCell from '@/traits/airTemperature/AirTemperatureCell.vue';
 import ElectricDemandCell from '@/traits/electricDemand/ElectricDemandCell.vue';
 import EmergencyCell from '@/traits/emergency/EmergencyCell.vue';

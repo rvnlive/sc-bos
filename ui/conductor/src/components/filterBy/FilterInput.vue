@@ -1,5 +1,6 @@
 <template>
   <v-text-field
+      autofocus
       clearable
       class="elevation-0"
       color="primary"
@@ -8,34 +9,23 @@
       :label="filterInputLabel"
       hide-details
       outlined
+      :placeholder="filterInputLabel"
       single-line
       solo
-      v-model="filterInputModel"/>
+      v-model="filterInput"/>
 </template>
 
 <script setup>
 import {computed} from 'vue';
+import {useFilterByStore} from '@/components/filterBy/useFilterByStore.js';
+import {storeToRefs} from 'pinia';
 
-const emits = defineEmits(['update:filterInputValue']);
-const props = defineProps({
-  filterInputValue: {
-    type: String,
-    default: ''
-  },
-  label: {
-    type: String,
-    default: ''
-  }
-});
+const filterByStore = useFilterByStore();
+const {filterInput, selectedOption} = storeToRefs(filterByStore);
 
 const filterInputLabel = computed(() => {
-  if (!props.label) return 'Filter by...';
-  else return 'Filter by ' + props.label.toLowerCase();
-});
-
-const filterInputModel = computed({
-  get: () => props.filterInputValue,
-  set: (value) => emits('update:filterInputValue', value)
+  if (!selectedOption.value?.title) return 'Filter by...';
+  else return 'Filter by ' + selectedOption.value.title.toLowerCase();
 });
 </script>
 

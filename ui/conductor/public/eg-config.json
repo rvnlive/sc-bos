@@ -55,13 +55,13 @@
             "widgets": {
               "showAirQuality": false,
               "showEmergencyLighting": false,
-              "showEnergyConsumption": "METER-01",
+              "showEnergyConsumption": "building",
               "showEnvironment": {
-                "indoor": "FCU-01",
-                "outdoor": "WEATHER-01"
+                "indoor": "building",
+                "outdoor": "building"
               },
-              "showNotifications": "Floor 3",
-              "showOccupancy": "Floor 03",
+              "showNotifications": "Floor 03",
+              "showOccupancy": "pir-1",
               "showPower": false
             },
             "children": [
@@ -73,9 +73,9 @@
                 "widgets": {
                   "showAirQuality": false,
                   "showEmergencyLighting": false,
-                  "showEnergyConsumption": false,
+                  "showEnergyConsumption": "building/supply",
                   "showEnvironment": false,
-                  "showNotifications": false,
+                  "showNotifications": "Left Wing",
                   "showOccupancy": false,
                   "showPower": false
                 },
@@ -91,7 +91,7 @@
                       "showEnergyConsumption": false,
                       "showEnvironment": false,
                       "showNotifications": false,
-                      "showOccupancy": "Office",
+                      "showOccupancy": "pir-2",
                       "showPower": false
                     }
                   }
@@ -109,11 +109,11 @@
               "showEmergencyLighting": false,
               "showEnergyConsumption": false,
               "showEnvironment": {
-                "indoor": "Floor 3",
-                "outdoor": "WEATHER-01"
+                "indoor": "building",
+                "outdoor": "building"
               },
-              "showNotifications": false,
-              "showOccupancy": false,
+              "showNotifications": "Room 1",
+              "showOccupancy": "pir-2",
               "showPower": false
             }
           }

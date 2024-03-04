@@ -1,18 +1,27 @@
 <template>
   <div>
-    <v-tooltip left>
+    <v-tooltip top>
       <template #activator="{ on }">
         <v-btn
             v-on="on"
             class="rounded"
-            color="primary"
+            color="neutral"
             elevation="0"
             fab
             height="36"
             tile
             small
-            @click="showHideFilterList = !showHideFilterList">
-          <v-icon>mdi-filter</v-icon>
+            :width="filterByStore.defaultFilters.length > 0 ? '36' : '30'"
+            @click="showHideFilterMenu">
+          <v-badge
+              v-if="filterByStore.defaultFilters.length > 0"
+              color="red"
+              value="true"
+              dot
+              offset-x="5"
+              offset-y="8">
+            <v-icon>mdi-filter</v-icon>
+          </v-badge>
         </v-btn>
       </template>
       <span>Set Filter</span>
@@ -21,20 +30,16 @@
 </template>
 
 <script setup>
-import {computed} from 'vue';
+import {useFilterByStore} from '@/components/filterBy/useFilterByStore.js';
+import {storeToRefs} from 'pinia';
 
-const emits = defineEmits(['update:showFilterList']);
-const props = defineProps({
-  showFilterList: {
-    type: Boolean,
-    default: false
-  }
-});
+const filterByStore = useFilterByStore();
+const {showFilterMenu} = storeToRefs(filterByStore);
 
-const showHideFilterList = computed({
-  get: () => props.showFilterList,
-  set: (value) => emits('update:showFilterList', value)
-});
+const showHideFilterMenu = () => {
+  filterByStore.clearSelection();
+  showFilterMenu.value = !showFilterMenu.value;
+};
 </script>
 
 <style scoped>
